@@ -51,7 +51,7 @@ namespace BudgetFlow.Api.Controllers
                 Expiration = accessTokenExpires
             };
 
-            return Ok(new { message = "User registered successfully", data = response });
+            return Ok(response);
         }
 
         [HttpPost("login")]
@@ -71,7 +71,7 @@ namespace BudgetFlow.Api.Controllers
             var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
             if (!result.Succeeded)
             {
-                return Unauthorized(new { message = "Invalid email or password" });
+                return Unauthorized("Invalid email or password");
             }
 
             var (accessToken, accessTokenExpires) = await tokenService.GenerateToken(user);
@@ -82,7 +82,7 @@ namespace BudgetFlow.Api.Controllers
                 Expiration = accessTokenExpires
             };
 
-            return Ok(new { message = "User logged in successfully", data = response });
+            return Ok(response);
         }
     }
 }
