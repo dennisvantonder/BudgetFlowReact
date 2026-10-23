@@ -24,12 +24,12 @@ export type AuthResponse = {
     expiration: string;
 };
 
-export async function login(request: LoginRequest): Promise<AuthResponse> {
+export async function loginRequest(request: LoginRequest): Promise<AuthResponse> {
     const response = await api.post('/Auth/login', request);
     return response.data;
 }
 
-export async function register(request: RegisterRequest): Promise<AuthResponse> {
+export async function registerRequest(request: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post('/Auth/register', request);
     return response.data;
 }

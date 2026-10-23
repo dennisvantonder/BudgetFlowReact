@@ -1,4 +1,10 @@
-import { Routes, Route, Navigate } from 'react-router';
+import {
+  Navigate,
+  Route,
+  Routes,
+} from 'react-router';
+
+import ProtectedRoute from './auth/ProtectedRoute';
 
 import AuthLayout from './layouts/AuthLayout';
 import AppLayout from './layouts/AppLayout';
@@ -12,29 +18,33 @@ import CategoriesPage from './pages/CategoriesPage';
 function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      <Route element={<AppLayout />}>
-        <Route
-          path="/dashboard"
-          element={<DashboardPage />}
-        />
-        <Route
-          path="/transactions"
-          element={<TransactionsPage />}
-        />
-        <Route
-          path="/categories"
-          element={<CategoriesPage />}
-        />
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route
+            path="/dashboard"
+            element={<DashboardPage />}
+          />
+          <Route
+            path="/transactions"
+            element={<TransactionsPage />}
+          />
+          <Route
+            path="/categories"
+            element={<CategoriesPage />}
+          />
+        </Route>
       </Route>
 
       <Route
         path="/"
-        element={<Navigate to="/login" replace />}
+        element={<Navigate to="/dashboard" replace />}
       />
 
       <Route

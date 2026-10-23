@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EmailInput, PasswordInput } from '../components/Inputs'
 import { PrimaryButton } from '../components/Buttons'
-import { login } from '../services/AuthService';
+import { loginRequest } from '../services/AuthService';
+import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router';
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,15 +20,13 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const response = await login({ email, password });
-
-      // Example for a basic prototype.
-      // Use a more secure token-storage strategy for production.
-      localStorage.setItem('token', response.token);
+      const response = await loginRequest({ email, password });
 
       // Optional: Use { replace: true } if you want to swap the current entry 
       // in the history stack instead of pushing a new one (prevents going back)
       console.log('Login successful:', response);
+      
+      login(response.token);
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
       if (err.response) {

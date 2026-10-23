@@ -2,8 +2,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EmailInput, PasswordInput, FullNameInput } from '../components/Inputs'
 import { PrimaryButton } from '../components/Buttons'
 import { useState } from 'react';
-import { register } from '../services/AuthService';
+import { registerRequest } from '../services/AuthService';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../auth/AuthContext';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,11 +21,11 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      const response = await register({ fullName, email, password });
+      const response = await registerRequest({ fullName, email, password });
 
       // Example for a basic prototype.
       // Use a more secure token-storage strategy for production.
-      localStorage.setItem('token', response.token);
+      login(response.token);
       localStorage.setItem('email', response.email);
       localStorage.setItem('fullName', fullName);
 

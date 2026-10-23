@@ -1,7 +1,16 @@
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, useNavigate } from 'react-router';
+import { useAuth } from '../auth/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function AppLayout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate('/login', { replace: true });
+  }
+
   return (
     <div>
       <aside className="sidebar">
@@ -24,7 +33,7 @@ export default function AppLayout() {
                     <div className="email">john.doe@example.com</div>
                 </div>
             </div>
-            <button className="logout-btn">
+            <button className="logout-btn" onClick={handleLogout}>
                 <FontAwesomeIcon icon="sign-out-alt" /> Logout
             </button>
         </div>
