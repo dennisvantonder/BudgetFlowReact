@@ -4,7 +4,7 @@ import {
   Routes,
 } from 'react-router';
 
-import ProtectedRoute from './auth/ProtectedRoute';
+//import ProtectedRoute from './auth/ProtectedRoute';
 
 import AuthLayout from './layouts/AuthLayout';
 import AppLayout from './layouts/AppLayout';
@@ -24,7 +24,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      {/* Protected routes */}
+      {/* Protected routes 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route
@@ -41,6 +41,21 @@ function App() {
           />
         </Route>
       </Route>
+      */}
+      <Route element={<AppLayout />}>
+          <Route
+            path="/dashboard"
+            element={<DashboardPage />}
+          />
+          <Route
+            path="/transactions"
+            element={<TransactionsPage />}
+          />
+          <Route
+            path="/categories"
+            element={<CategoriesPage />}
+          />
+        </Route>
 
       <Route
         path="/"
