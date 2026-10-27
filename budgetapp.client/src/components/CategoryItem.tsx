@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getCategoryIcon } from "../utils/IconMap";
+import { getCategoryIcon } from "../utils/iconMap";
 
 type CategoryItemProps = {
    name: string;

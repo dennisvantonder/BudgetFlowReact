@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EmptyState from "../components/EmptyState";
 import CategoryItem from "../components/CategoryItem";
 import type { Category } from "../services/CategoryService";
+import { PrimaryButton } from "../components/Buttons";
 
 export default function CategoriesPage() {
    const categories: Category[] = [
@@ -24,9 +25,9 @@ export default function CategoriesPage() {
                Categories <small>Manage your spending categories here.</small>
             </h1>
             <div className="page-actions">
-               <button className="btn btn-primary">
+               <PrimaryButton>
                   <FontAwesomeIcon icon="plus" /> Add Category
-               </button>
+               </PrimaryButton>
             </div>
          </div>
          <div className="categories-grid">
