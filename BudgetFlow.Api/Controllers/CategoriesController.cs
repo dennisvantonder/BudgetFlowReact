@@ -35,7 +35,7 @@ namespace BudgetFlow.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            
             var newCategory = new Category
             {
                 Name = category.Name,
