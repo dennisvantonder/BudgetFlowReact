@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router";
 import { AuthProvider } from "./auth/AuthContext";
 import "./lib/fontawesome";
 import "./index.css";
-import "./BudgetApp.css";
+import "./App.css";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
