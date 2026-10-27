@@ -4,6 +4,7 @@ using BudgetFlow.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BudgetFlow.Api.Controllers
 {
@@ -13,8 +14,11 @@ namespace BudgetFlow.Api.Controllers
     public class CategoriesController(AppDbContext context) : ControllerBase
     {
         [HttpGet("/get")]
-        public async Task<IActionResult> GetCategories(string userId)
+        public async Task<IActionResult> GetCategories()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
             var categories = await context.Categories.Where(c => c.UserId == userId).Select(c => new CategoryDto
             {
                 Id = c.Id,
@@ -49,14 +53,14 @@ namespace BudgetFlow.Api.Controllers
             return Ok();
         }
 
-        [HttpPut("/update")]
-        public async Task<IActionResult> UpdateCategory([FromBody] CategoryDto category)
+        [HttpPut("/update/{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto category)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var existingCategory = await context.Categories.FindAsync(category.Id);
+            var existingCategory = await context.Categories.FindAsync(id);
             if (existingCategory == null)
             {
                 return NotFound();
@@ -77,7 +81,7 @@ namespace BudgetFlow.Api.Controllers
             }
             context.Categories.Remove(category);
             await context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
     }
 }

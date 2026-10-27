@@ -4,6 +4,7 @@ using BudgetFlow.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BudgetFlow.Api.Controllers
 {
@@ -13,8 +14,11 @@ namespace BudgetFlow.Api.Controllers
     public class TransactionsController(AppDbContext context) : ControllerBase
     {
         [HttpGet("/get")]
-        public async Task<IActionResult> GetTransactions(string userId)
+        public async Task<IActionResult> GetTransactions()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
             var transactions = await context.Transactions.Where(t => t.UserId == userId).Select(t => new TransactionDto
             {
                 Id = t.Id,
@@ -58,7 +62,7 @@ namespace BudgetFlow.Api.Controllers
             }
             context.Transactions.Remove(transaction);
             await context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
     }
 }

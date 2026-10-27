@@ -1,9 +1,8 @@
-
 export default function DashboardPage() {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome to your budget app.</p>
-    </div>
-  );
+   return (
+      <div>
+         <h1>Dashboard</h1>
+         <p>Welcome to your budget app.</p>
+      </div>
+   );
 }
