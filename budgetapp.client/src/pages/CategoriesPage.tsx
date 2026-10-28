@@ -1,11 +1,16 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import EmptyState from "../components/EmptyState";
 import CategoryItem from "../components/CategoryItem";
 import type { Category } from "../services/CategoryService";
 import { PrimaryButton } from "../components/Buttons";
+import AddCategoryModal from "../components/AddCategoryModal";
+import { iconMap } from "../utils/iconMap";
 
 export default function CategoriesPage() {
-   const categories: Category[] = [
+   const [showModal, setShowModal] = useState(false);
+
+   const [categories, setCategories] = useState<Category[]>([
       { id: 1, name: "Food", icon: "fa-utensils" },
       { id: 2, name: "Transport", icon: "fa-car" },
       { id: 3, name: "Shopping", icon: "fa-shopping-bag" },
@@ -16,7 +21,19 @@ export default function CategoriesPage() {
       { id: 8, name: "Salary", icon: "fa-money-bill-wave" },
       { id: 9, name: "Freelance", icon: "fa-laptop-code" },
       { id: 10, name: "Other", icon: "fa-ellipsis-h" },
-   ];
+   ]);
+
+   const categoryOptions = Object.entries(iconMap).map(([key, icon]) => ({
+      value: key,
+      label: key.toString().replace("fa-", ""),
+   }));
+
+   const handleDeleteCategory = (id: number) => {
+      // Implement category deletion logic here
+      setCategories((currentCategories) =>
+         currentCategories.filter((c) => c.id !== id),
+      );
+   };
 
    return (
       <div className="page">
@@ -25,7 +42,7 @@ export default function CategoriesPage() {
                Categories <small>Manage your spending categories here.</small>
             </h1>
             <div className="page-actions">
-               <PrimaryButton>
+               <PrimaryButton onClick={() => setShowModal(true)}>
                   <FontAwesomeIcon icon="plus" /> Add Category
                </PrimaryButton>
             </div>
@@ -45,11 +62,25 @@ export default function CategoriesPage() {
                         name={c.name}
                         count={count}
                         icon={c.icon}
+                        onDelete={() => handleDeleteCategory(c.id)}
                      />
                   );
                })
             )}
          </div>
+
+         {showModal && (
+            <AddCategoryModal
+               categoryOptions={categoryOptions}
+               onClose={() => setShowModal(false)}
+               onAdd={(name, icon) => {
+                  setCategories((currentCategories) => [
+                     ...currentCategories,
+                     { id: currentCategories.length + 1, name, icon },
+                  ]);
+               }}
+            />
+         )}
       </div>
    );
 }

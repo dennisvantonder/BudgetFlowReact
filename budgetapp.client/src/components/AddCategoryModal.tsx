@@ -1,22 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PrimaryButton } from "./Buttons";
-import { TextInput, ComboBoxInput } from "./Inputs";
+import { TextInput, ComboBoxInput, type ComboBoxOption } from "./Inputs";
 import { useState } from "react";
 
 export type AddCategoryProps = {
-   title: string;
-   categoryOptions: { value: string; label: string }[];
+   categoryOptions: ComboBoxOption[];
+   onClose: () => void;
+   onAdd: (name: string, icon: string) => void;
 };
 
 export default function AddCategoryModal({
-   title,
    categoryOptions,
+   onClose,
+   onAdd,
 }: AddCategoryProps) {
    const [categoryName, setCategoryName] = useState("");
    const [categoryType, setCategoryType] = useState("");
 
    return (
-      <div className="modal-overlay">
+      <div className="modal-overlay open">
          <div className="modal">
             <div className="modal-header">
                <h2>
@@ -24,9 +26,11 @@ export default function AddCategoryModal({
                      icon="tag"
                      style={{ color: "var(--primary)", marginRight: "10px" }}
                   />{" "}
-                  {title}
+                  Add Category
                </h2>
-               <button className="modal-close">&times;</button>
+               <button className="modal-close" onClick={onClose}>
+                  &times;
+               </button>
             </div>
             <form>
                <TextInput
@@ -36,12 +40,20 @@ export default function AddCategoryModal({
                   placeholder="Enter category name"
                />
                <ComboBoxInput
-                  label="Category Type"
+                  label="Category Icon"
                   value={categoryType}
                   options={categoryOptions}
                   onChange={(e) => setCategoryType(e.target.value)}
                />
-               <PrimaryButton type="submit">Add Category</PrimaryButton>
+               <PrimaryButton
+                  type="button"
+                  onClick={() => {
+                     onAdd(categoryName, categoryType);
+                     onClose();
+                  }}
+               >
+                  Add Category
+               </PrimaryButton>
             </form>
          </div>
       </div>

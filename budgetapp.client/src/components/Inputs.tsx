@@ -88,7 +88,7 @@ export function TextInput({
 }
 
 // ComboBox input component
-type ComboBoxOption = {
+export type ComboBoxOption = {
    value: string;
    label: string;
 };
