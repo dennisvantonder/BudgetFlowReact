@@ -60,15 +60,15 @@ export function FullNameInput({ value, onChange }: FullNameInputProps) {
    );
 }
 
-// Text input component
+// Form Text input component
 type TextInputProps = {
-   label: string;
+   label?: string;
    value: string;
    placeholder?: string;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function TextInput({
+export function FormTextInput({
    label,
    value,
    placeholder = "Enter text...",
@@ -87,20 +87,20 @@ export function TextInput({
    );
 }
 
-// ComboBox input component
+// Form ComboBox input component
 export type ComboBoxOption = {
    value: string;
    label: string;
 };
 
 type ComboBoxInputProps = {
-   label: string;
+   label?: string;
    value: string;
    options: ComboBoxOption[];
    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
-export function ComboBoxInput({
+export function FormComboBoxInput({
    label,
    value,
    options,
@@ -117,5 +117,56 @@ export function ComboBoxInput({
             ))}
          </select>
       </div>
+   );
+}
+
+// Normal TextInput component
+export function TextInput({
+   value,
+   placeholder = "Enter text...",
+   onChange,
+}: TextInputProps) {
+   return (
+      <input
+         type="text"
+         value={value}
+         onChange={onChange}
+         placeholder={placeholder}
+         style={{
+            flex: "1",
+            minWidth: "180px",
+            padding: "10px 16px",
+            border: "2px solid var(--border)",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "14px",
+            backgroundColor: "var(--card-bg)",
+         }}
+      />
+   );
+}
+
+export function ComboBoxInput({
+   value,
+   options,
+   onChange,
+}: ComboBoxInputProps) {
+   return (
+      <select
+         style={{
+            padding: "10px 16px",
+            border: "2px solid var(--border)",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "14px",
+            backgroundColor: "var(--card-bg)",
+         }}
+         value={value}
+         onChange={onChange}
+      >
+         {options.map((option) => (
+            <option key={option.value} value={option.value}>
+               {option.label}
+            </option>
+         ))}
+      </select>
    );
 }

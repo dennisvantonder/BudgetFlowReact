@@ -1,6 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PrimaryButton } from "./Buttons";
-import { TextInput, ComboBoxInput, type ComboBoxOption } from "./Inputs";
+import {
+   FormTextInput,
+   FormComboBoxInput,
+   type ComboBoxOption,
+} from "./Inputs";
 import { useState } from "react";
 
 export type AddCategoryProps = {
@@ -33,13 +37,13 @@ export default function AddCategoryModal({
                </button>
             </div>
             <form>
-               <TextInput
+               <FormTextInput
                   label="Category Name"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   placeholder="Enter category name"
                />
-               <ComboBoxInput
+               <FormComboBoxInput
                   label="Category Icon"
                   value={categoryType}
                   options={categoryOptions}
