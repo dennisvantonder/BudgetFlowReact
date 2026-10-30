@@ -23,7 +23,7 @@ export default function CategoriesPage() {
       { id: 10, name: "Other", icon: "fa-ellipsis-h" },
    ]);
 
-   const categoryOptions = Object.entries(iconMap).map(([key, icon]) => ({
+   const categoryOptions = Object.entries(iconMap).map(([key]) => ({
       value: key,
       label: key.toString().replace("fa-", ""),
    }));

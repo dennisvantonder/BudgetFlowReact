@@ -2,9 +2,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PrimaryButton } from "../components/Buttons";
 import { ComboBoxInput, TextInput } from "../components/Inputs";
 import EmptyState from "../components/EmptyState";
-import { getCategoryIcon } from "../utils/iconMap";
+import TransactionTable from "../components/TransactionTable";
+import { useState } from "react";
 
 export default function TransactionPage() {
+   const [searchTerm, setSearchTerm] = useState("");
+   const [selectedCategory, setSelectedCategory] = useState("0");
+   const [selectedType, setSelectedType] = useState("all");
+
    const categories = [
       { id: 0, name: "All Categories", icon: "fa-list" },
       { id: 1, name: "Food", icon: "fa-utensils" },
@@ -25,7 +30,7 @@ export default function TransactionPage() {
          description: "Grocery shopping",
          amount: 85.5,
          type: "expense",
-         category: "Food",
+         categoryName: "Food",
          date: "2026-08-10",
       },
       {
@@ -33,7 +38,7 @@ export default function TransactionPage() {
          description: "Monthly salary",
          amount: 3200.0,
          type: "income",
-         category: "Salary",
+         categoryName: "Salary",
          date: "2026-08-01",
       },
       {
@@ -41,7 +46,7 @@ export default function TransactionPage() {
          description: "Uber ride",
          amount: 24.0,
          type: "expense",
-         category: "Transport",
+         categoryName: "Transport",
          date: "2026-08-08",
       },
       {
@@ -49,7 +54,7 @@ export default function TransactionPage() {
          description: "Netflix subscription",
          amount: 15.99,
          type: "expense",
-         category: "Entertainment",
+         categoryName: "Entertainment",
          date: "2026-08-05",
       },
       {
@@ -57,7 +62,7 @@ export default function TransactionPage() {
          description: "Freelance project",
          amount: 450.0,
          type: "income",
-         category: "Freelance",
+         categoryName: "Freelance",
          date: "2026-08-03",
       },
       {
@@ -65,7 +70,7 @@ export default function TransactionPage() {
          description: "Electricity bill",
          amount: 120.0,
          type: "expense",
-         category: "Bills",
+         categoryName: "Bills",
          date: "2026-07-28",
       },
       {
@@ -73,7 +78,7 @@ export default function TransactionPage() {
          description: "New headphones",
          amount: 89.99,
          type: "expense",
-         category: "Shopping",
+         categoryName: "Shopping",
          date: "2026-07-25",
       },
       {
@@ -81,7 +86,7 @@ export default function TransactionPage() {
          description: "Doctor visit",
          amount: 60.0,
          type: "expense",
-         category: "Health",
+         categoryName: "Health",
          date: "2026-07-20",
       },
    ];
@@ -92,14 +97,25 @@ export default function TransactionPage() {
       { value: "income", label: "Income" },
    ];
 
-   const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-         month: "short",
-         day: "numeric",
-         year: "numeric",
-      });
-   };
+   const filteredTransactions = defaultTransactions.filter((transaction) => {
+      // Search by transaction description
+      const matchesSearch = transaction.description
+         .toLowerCase()
+         .includes(searchTerm.toLowerCase());
+
+      // Filter by category
+      const matchesCategory =
+         selectedCategory === "0" ||
+         categories.find((c) => c.id.toString() === selectedCategory)?.name ===
+            transaction.categoryName;
+
+      // Filter by transaction type
+      const matchesType =
+         selectedType === "all" || transaction.type === selectedType;
+
+      // All conditions must match
+      return matchesSearch && matchesCategory && matchesType;
+   });
 
    return (
       <div className="page">
@@ -124,98 +140,34 @@ export default function TransactionPage() {
          >
             <TextInput
                placeholder="Search transactions..."
-               value=""
-               onChange={() => {}}
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <ComboBoxInput
-               value=""
+               value={selectedCategory}
                options={categories.map((category) => ({
                   value: category.id.toString(),
                   label: category.name,
                }))}
-               onChange={() => {}}
+               onChange={(e) => setSelectedCategory(e.target.value)}
             />
             <ComboBoxInput
-               value=""
+               value={selectedType}
                options={expenseTypes}
-               onChange={() => {}}
+               onChange={(e) => setSelectedType(e.target.value)}
             />
          </div>
 
-         {defaultTransactions.length == 0 ? (
+         {filteredTransactions.length == 0 ? (
             <EmptyState
                title="No transactions yet"
                message="Start by adding a new transaction."
             />
          ) : (
-            <div className="table-wrapper">
-               <table>
-                  <thead>
-                     <tr>
-                        <th>Description</th>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th style={{ textAlign: "right" }}>Actions</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     {defaultTransactions.map((transaction) => {
-                        const category = categories.find(
-                           (c) => c.name === transaction.category,
-                        );
-                        const isIncome = transaction.type === "income";
-                        return (
-                           <tr key={transaction.id}>
-                              <td>
-                                 <strong>{transaction.description}</strong>
-                              </td>
-                              <td>
-                                 <span className="badge category-badge">
-                                    <FontAwesomeIcon
-                                       icon={getCategoryIcon(category?.icon)}
-                                       style={{ marginRight: "4px" }}
-                                    />
-                                    {transaction.category}
-                                 </span>
-                              </td>
-                              <td>
-                                 <span
-                                    className={`badge ${isIncome ? "income" : "expense"}`}
-                                 >
-                                    {isIncome ? "Income" : "Expense"}
-                                 </span>
-                              </td>
-                              <td
-                                 style={{
-                                    fontWeight: "600",
-                                    color: isIncome ? "#10b981" : "#ef4444",
-                                 }}
-                              >
-                                 {isIncome
-                                    ? `+${Math.abs(transaction.amount).toFixed(2)}`
-                                    : `-${Math.abs(transaction.amount).toFixed(2)}`}
-                              </td>
-                              <td style={{ color: "var(--text-secondary)" }}>
-                                 {formatDate(transaction.date)}
-                              </td>
-                              <td style={{ textAlign: "right" }}>
-                                 <div
-                                    className="table-actions"
-                                    style={{ justifyContent: "flex-end" }}
-                                 >
-                                    <button className="danger">
-                                       <FontAwesomeIcon icon="trash" />
-                                    </button>
-                                 </div>
-                              </td>
-                           </tr>
-                        );
-                     })}
-                  </tbody>
-               </table>
-            </div>
+            <TransactionTable
+               transactions={filteredTransactions}
+               categories={categories}
+            />
          )}
       </div>
    );
