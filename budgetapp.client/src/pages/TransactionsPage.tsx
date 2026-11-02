@@ -4,11 +4,13 @@ import { ComboBoxInput, TextInput } from "../components/Inputs";
 import EmptyState from "../components/EmptyState";
 import TransactionTable from "../components/TransactionTable";
 import { useState } from "react";
+import AddTransactionModal from "../components/AddTransactionModal";
 
 export default function TransactionPage() {
    const [searchTerm, setSearchTerm] = useState("");
    const [selectedCategory, setSelectedCategory] = useState("0");
    const [selectedType, setSelectedType] = useState("all");
+   const [showModal, setShowModal] = useState(false);
 
    const categories = [
       { id: 0, name: "All Categories", icon: "fa-list" },
@@ -124,7 +126,7 @@ export default function TransactionPage() {
                Transactions <small>Manage your transaction history here.</small>
             </h1>
             <div className="page-actions">
-               <PrimaryButton>
+               <PrimaryButton onClick={() => setShowModal(true)}>
                   <FontAwesomeIcon icon="plus" /> Add Transaction
                </PrimaryButton>
             </div>
@@ -167,6 +169,20 @@ export default function TransactionPage() {
             <TransactionTable
                transactions={filteredTransactions}
                categories={categories}
+            />
+         )}
+
+         {showModal && (
+            <AddTransactionModal
+               categoryOptions={categories.map((category) => ({
+                  value: category.id.toString(),
+                  label: category.name,
+               }))}
+               onClose={() => setShowModal(false)}
+               onAdd={(transaction) => {
+                  // Handle adding the transaction here
+                  console.log(transaction);
+               }}
             />
          )}
       </div>

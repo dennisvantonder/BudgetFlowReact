@@ -87,6 +87,50 @@ export function FormTextInput({
    );
 }
 
+// Form number input component
+type NumberInputProps = {
+   label?: string;
+   value: number;
+   placeholder?: string;
+   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+export function FormNumberInput({
+   label,
+   value,
+   placeholder = "Enter number...",
+   onChange,
+}: NumberInputProps) {
+   return (
+      <div className="form-group">
+         <label>{label}</label>
+         <input
+            type="number"
+            step="0.01"
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+         />
+      </div>
+   );
+}
+
+// Form Date input component
+type DateInputProps = {
+   label?: string;
+   value: string;
+   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+export function FormDateInput({ label, value, onChange }: DateInputProps) {
+   return (
+      <div className="form-group">
+         <label>{label}</label>
+         <input type="date" value={value} onChange={onChange} />
+      </div>
+   );
+}
+
 // Form ComboBox input component
 export type ComboBoxOption = {
    value: string;
