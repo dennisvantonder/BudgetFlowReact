@@ -13,7 +13,7 @@ namespace BudgetFlow.Api.Controllers
     [Authorize]
     public class TransactionsController(AppDbContext context) : ControllerBase
     {
-        [HttpGet("/get")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetTransactions()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -31,7 +31,7 @@ namespace BudgetFlow.Api.Controllers
             return Ok(transactions);
         }
 
-        [HttpPost("/add")]
+        [HttpPost("add")]
         public async Task<IActionResult> AddTransaction([FromBody] AddTransactionDto transaction)
         {
             if (!ModelState.IsValid)
@@ -52,7 +52,7 @@ namespace BudgetFlow.Api.Controllers
             return Ok();
         }
 
-        [HttpDelete("/delete/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {
             var transaction = await context.Transactions.FindAsync(id);

@@ -10,7 +10,7 @@ import { useState } from "react";
 export type AddCategoryProps = {
    categoryOptions: ComboBoxOption[];
    onClose: () => void;
-   onAdd: (name: string, icon: string) => void;
+   onAdd: (name: string, icon: string) => Promise<void>;
 };
 
 export default function AddCategoryModal({
@@ -51,9 +51,8 @@ export default function AddCategoryModal({
                />
                <PrimaryButton
                   type="button"
-                  onClick={() => {
-                     onAdd(categoryName, categoryType);
-                     onClose();
+                  onClick={async () => {
+                     await onAdd(categoryName, categoryType);
                   }}
                >
                   Add Category

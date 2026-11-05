@@ -27,6 +27,8 @@ export default function LoginPage() {
          console.log("Login successful:", response);
 
          login(response.token);
+         localStorage.setItem("email", email);
+         localStorage.setItem("userId", response.userId);
          navigate("/dashboard", { replace: true });
       } catch (err: any) {
          if (err.response) {

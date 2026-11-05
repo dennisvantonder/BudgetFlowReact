@@ -26,8 +26,9 @@ export default function RegisterPage() {
          // Example for a basic prototype.
          // Use a more secure token-storage strategy for production.
          login(response.token);
-         localStorage.setItem("email", response.email);
+         localStorage.setItem("email", email);
          localStorage.setItem("fullName", fullName);
+         localStorage.setItem("userId", response.userId);
 
          // Optional: Use { replace: true } if you want to swap the current entry
          // in the history stack instead of pushing a new one (prevents going back)

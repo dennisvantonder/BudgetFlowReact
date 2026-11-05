@@ -9,16 +9,15 @@ export type Category = {
 export type AddCategory = {
    name: string;
    icon: string;
-   userId: string;
 };
 
 export default class CategoryService extends BaseApiService {
    async getCategories(): Promise<Category[]> {
-      return this.get<Category[]>("/categories/get");
+      return this.get<Category[]>("/Categories/get");
    }
 
    async addCategory(category: AddCategory): Promise<Category> {
-      return this.post<Category, AddCategory>("/categories/add", category);
+      return this.post<Category, AddCategory>("/Categories/add", category);
    }
 
    async updateCategory(
@@ -26,12 +25,12 @@ export default class CategoryService extends BaseApiService {
       category: AddCategory,
    ): Promise<any> {
       return this.put<any, AddCategory>(
-         `/categories/update/${categoryId}`,
+         `/Categories/update/${categoryId}`,
          category,
       );
    }
 
    async deleteCategory(categoryId: number): Promise<void> {
-      return this.delete<void>(`/categories/delete/${categoryId}`);
+      return this.delete<void>(`/Categories/delete/${categoryId}`);
    }
 }

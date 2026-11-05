@@ -60,7 +60,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "FuelTracker API",
+        Title = "BudgetFlow API",
         Version = "v1"
     });
     //c.IncludeXmlComments(Assembly.GetExecutingAssembly());

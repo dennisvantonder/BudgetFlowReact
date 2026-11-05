@@ -13,7 +13,7 @@ namespace BudgetFlow.Api.Controllers
     [Authorize]
     public class CategoriesController(AppDbContext context) : ControllerBase
     {
-        [HttpGet("/get")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetCategories()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -28,19 +28,22 @@ namespace BudgetFlow.Api.Controllers
             return Ok(categories);
         }
 
-        [HttpPost("/add")]
+        [HttpPost("add")]
         public async Task<IActionResult> AddCategory([FromBody] AddCategoryDto category)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
             var newCategory = new Category
             {
                 Name = category.Name,
                 Icon = category.Icon,
-                UserId = category.UserId
+                UserId = userId
             };
 
             if (await context.Categories.AnyAsync(c => c.Name == newCategory.Name && c.UserId == newCategory.UserId))
@@ -50,10 +53,15 @@ namespace BudgetFlow.Api.Controllers
 
             context.Categories.Add(newCategory);
             await context.SaveChangesAsync();
-            return Ok();
+            return Ok(new CategoryDto
+            {
+                Id = newCategory.Id,
+                Name = newCategory.Name,
+                Icon = newCategory.Icon
+            });
         }
 
-        [HttpPut("/update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto category)
         {
             if (!ModelState.IsValid)
@@ -71,7 +79,7 @@ namespace BudgetFlow.Api.Controllers
             return Ok();
         }
 
-        [HttpDelete("/delete/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await context.Categories.FindAsync(id);

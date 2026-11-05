@@ -20,8 +20,8 @@ export type RegisterRequest = {
 
 export type AuthResponse = {
    token: string;
-   email: string;
    expiration: string;
+   userId: string;
 };
 
 export async function loginRequest(

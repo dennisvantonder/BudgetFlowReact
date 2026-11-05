@@ -7,7 +7,7 @@ type CategoryItemProps = {
    name: string;
    icon?: string;
    count: number;
-   onDelete?: () => void;
+   onDelete: () => Promise<void>;
 };
 
 export default function CategoryItem({
@@ -91,9 +91,9 @@ export default function CategoryItem({
                   <button
                      type="button"
                      className="context-menu-item delete"
-                     onClick={() => {
+                     onClick={async () => {
                         setShowContextMenu(false);
-                        onDelete?.();
+                        await onDelete();
                      }}
                   >
                      <FontAwesomeIcon icon="trash" />

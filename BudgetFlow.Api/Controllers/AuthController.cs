@@ -68,7 +68,7 @@ namespace BudgetFlow.Api.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-            var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
             {
                 return Unauthorized("Invalid email or password");

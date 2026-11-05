@@ -20,14 +20,14 @@ export type AddTransaction = {
 
 export default class TransactionService extends BaseApiService {
    async getTransactions(): Promise<Transaction[]> {
-      return this.get<Transaction[]>("/transactions/get");
+      return this.get<Transaction[]>("/Transactions/get");
    }
 
    async addTransaction(transaction: AddTransaction): Promise<any> {
-      return this.post<any, AddTransaction>("/transactions/add", transaction);
+      return this.post<any, AddTransaction>("/Transactions/add", transaction);
    }
 
    async deleteTransaction(transactionId: number): Promise<void> {
-      return this.delete<void>(`/transactions/delete/${transactionId}`);
+      return this.delete<void>(`/Transactions/delete/${transactionId}`);
    }
 }

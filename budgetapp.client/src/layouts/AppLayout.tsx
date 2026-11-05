@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default function AppLayout() {
    const { logout } = useAuth();
    const navigate = useNavigate();
+   const fullName = localStorage.getItem("fullName");
+   const email = localStorage.getItem("email");
 
    function handleLogout() {
       logout();
@@ -38,10 +40,12 @@ export default function AppLayout() {
 
             <div className="sidebar-footer">
                <div className="user-info">
-                  <div className="avatar">JD</div>
+                  <div className="avatar">{fullName?.[0] ?? "U"}</div>
                   <div>
-                     <div className="name">John Doe</div>
-                     <div className="email">john.doe@example.com</div>
+                     <div className="name">{fullName ?? "Unknown User"}</div>
+                     <div className="email">
+                        {email ?? "unknown@example.com"}
+                     </div>
                   </div>
                </div>
                <button className="logout-btn" onClick={handleLogout}>
