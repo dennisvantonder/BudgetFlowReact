@@ -4,6 +4,7 @@ import { ComboBoxInput, TextInput } from "../components/Inputs";
 import EmptyState from "../components/EmptyState";
 import TransactionTable from "../components/TransactionTable";
 import { useState } from "react";
+import type { Transaction } from "../services/TransactionService";
 import AddTransactionModal from "../components/AddTransactionModal";
 
 export default function TransactionPage() {
@@ -26,7 +27,9 @@ export default function TransactionPage() {
       { id: 10, name: "Other", icon: "fa-ellipsis-h" },
    ];
 
-   let defaultTransactions = [
+   const [defaultTransactions, setDefaultTransactions] = useState<
+      Transaction[]
+   >([
       {
          id: 1,
          description: "Grocery shopping",
@@ -91,7 +94,7 @@ export default function TransactionPage() {
          categoryName: "Health",
          date: "2026-07-20",
       },
-   ];
+   ]);
 
    const expenseTypes = [
       { value: "all", label: "All Types" },
@@ -169,6 +172,11 @@ export default function TransactionPage() {
             <TransactionTable
                transactions={filteredTransactions}
                categories={categories}
+               onDelete={(transactionId) => {
+                  setDefaultTransactions((transactions) =>
+                     transactions.filter((t) => t.id !== transactionId),
+                  );
+               }}
             />
          )}
 
@@ -180,7 +188,20 @@ export default function TransactionPage() {
                }))}
                onClose={() => setShowModal(false)}
                onAdd={(transaction) => {
-                  // Handle adding the transaction here
+                  setDefaultTransactions((transactions) => {
+                     const newTransaction = {
+                        id: 0,
+                        description: transaction.description,
+                        amount: transaction.amount,
+                        type: transaction.type,
+                        categoryName:
+                           categories.find(
+                              (c) => c.id === transaction.categoryId,
+                           )?.name || "",
+                        date: transaction.date,
+                     };
+                     return [...transactions, newTransaction];
+                  });
                   console.log(transaction);
                }}
             />

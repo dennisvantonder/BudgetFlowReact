@@ -3,13 +3,17 @@ import { getCategoryIcon } from "../utils/iconMap";
 import type { Transaction } from "../services/TransactionService";
 import type { Category } from "../services/CategoryService";
 
+export interface TransactionTableProps {
+   transactions: Transaction[];
+   categories: Category[];
+   onDelete: (transactionId: number) => void;
+}
+
 export default function TransactionTable({
    transactions,
    categories,
-}: {
-   transactions: Transaction[];
-   categories: Category[];
-}) {
+   onDelete,
+}: TransactionTableProps) {
    const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       return date.toLocaleDateString("en-US", {
@@ -77,7 +81,10 @@ export default function TransactionTable({
                               className="table-actions"
                               style={{ justifyContent: "flex-end" }}
                            >
-                              <button className="danger">
+                              <button
+                                 className="danger"
+                                 onClick={() => onDelete(transaction.id)}
+                              >
                                  <FontAwesomeIcon icon="trash" />
                               </button>
                            </div>
