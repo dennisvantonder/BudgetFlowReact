@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { EmailInput, PasswordInput } from "../components/Inputs";
 import { PrimaryButton } from "../components/Buttons";
 import { loginRequest } from "../services/AuthService";
-import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router";
 
 export default function LoginPage() {
@@ -12,7 +11,6 @@ export default function LoginPage() {
    const [error, setError] = useState("");
    const [loading, setLoading] = useState(false);
    const navigate = useNavigate();
-   const { login } = useAuth();
 
    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
       e.preventDefault();
@@ -26,7 +24,6 @@ export default function LoginPage() {
          // in the history stack instead of pushing a new one (prevents going back)
          console.log("Login successful:", response);
 
-         login(response.token);
          localStorage.setItem("email", email);
          localStorage.setItem("userId", response.userId);
          navigate("/dashboard", { replace: true });

@@ -43,19 +43,58 @@ namespace BudgetFlow.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var (accessToken, accessTokenExpires) = await tokenService.GenerateToken(user);
-            var response = new AuthResponseDto
-            {
-                Token = accessToken,
-                UserId = user.Id,
-                Expiration = accessTokenExpires
-            };
-
-            return Ok(response);
+            return Ok();
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return Unauthorized("Invalid credentials.");
+            }
+            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            if (!result.Succeeded)
+            {
+                return Unauthorized("Invalid email or password");
+            }
+            var (accessToken, accessTokenExpires) = await tokenService.GenerateToken(user);
+
+            Response.Cookies.Append("__Host-BudgetFlow",
+                accessToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30),
+                    Path = "/"
+                }
+            );
+
+            return Ok();
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("__Host-BudgetFlow", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            });
+            return Ok();
+        }
+
+        [HttpPost("debug/login")]
+        public async Task<IActionResult> ApiLogin([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
             {

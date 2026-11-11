@@ -33,7 +33,7 @@ export async function loginRequest(
 
 export async function registerRequest(
    request: RegisterRequest,
-): Promise<AuthResponse> {
+): Promise<number> {
    const response = await api.post("/Auth/register", request);
-   return response.data;
+   return response.status;
 }

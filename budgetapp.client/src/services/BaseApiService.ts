@@ -13,18 +13,22 @@ export default class BaseApiService {
          headers: {
             "Content-Type": "application/json",
          },
+         withCredentials: true,
       });
 
-      // attach the token automatically to each request
-      this.api.interceptors.request.use((config) => {
-         const token = localStorage.getItem("authToken");
-
-         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-         }
-
-         return config;
-      });
+      this.api.interceptors.response.use(
+         (response) => response,
+         (error) => {
+            if (error.response?.status === 401) {
+               // Handle unauthorized error, e.g., redirect to login
+               if (!error.config?.url?.includes("/Auth/login")) {
+                  // Redirect to login page or perform other actions
+                  window.location.href = "/login";
+               }
+            }
+            return Promise.reject(error);
+         },
+      );
    }
 
    async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

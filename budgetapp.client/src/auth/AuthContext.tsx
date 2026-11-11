@@ -1,10 +1,25 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+   createContext,
+   useContext,
+   useEffect,
+   useState,
+   type ReactNode,
+} from "react";
+import { loginRequest } from "../services/AuthService";
+import UserService from "../services/UserService";
+import type { User } from "../services/UserService";
+
+type LoginRequest = {
+   email: string;
+   password: string;
+};
 
 type AuthContextType = {
-   token: string | null;
+   user: User | null;
    isAuthenticated: boolean;
-   login: (token: string) => void;
-   logout: () => void;
+   isLoading: boolean;
+   login: (credentials: LoginRequest) => Promise<void>;
+   logout: () => Promise<void>;
 };
 
 type AuthProviderProps = {
@@ -14,23 +29,47 @@ type AuthProviderProps = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-   const [token, setToken] = useState<string | null>(() =>
-      localStorage.getItem("authToken"),
-   );
+   const [user, setUser] = useState<User | null>(null);
+   const [isLoading, setIsLoading] = useState(true);
 
-   function login(newToken: string) {
-      localStorage.setItem("authToken", newToken);
-      setToken(newToken);
+   // Check whether the user has a valid authentication cookie.
+   async function checkAuth() {
+      try {
+         const response = await new UserService().getUser();
+         setUser(response);
+      } catch {
+         setUser(null);
+      } finally {
+         setIsLoading(false);
+      }
    }
 
-   function logout() {
-      localStorage.removeItem("authToken");
-      setToken(null);
+   // Check authentication when the application starts.
+   useEffect(() => {
+      checkAuth();
+   }, []);
+
+   // Login using the API. The API sets the HTTP-only cookie.
+   async function login(credentials: LoginRequest) {
+      await loginRequest(credentials);
+
+      // Retrieve the authenticated user's information.
+      await checkAuth();
+   }
+
+   // Logout and clear the authentication state.
+   async function logout() {
+      try {
+         await new UserService().logoutUser(); // Replace with actual logout request if available
+      } finally {
+         setUser(null);
+      }
    }
 
    const value: AuthContextType = {
-      token,
-      isAuthenticated: !!token,
+      user,
+      isAuthenticated: !!user,
+      isLoading,
       login,
       logout,
    };
