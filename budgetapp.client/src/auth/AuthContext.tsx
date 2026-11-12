@@ -60,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    // Logout and clear the authentication state.
    async function logout() {
       try {
-         await new UserService().logoutUser(); // Replace with actual logout request if available
+         await new UserService().logoutUser();
       } finally {
          setUser(null);
       }
