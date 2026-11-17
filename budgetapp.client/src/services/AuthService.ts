@@ -5,6 +5,7 @@ const api = axios.create({
    headers: {
       "Content-Type": "application/json",
    },
+   withCredentials: true,
 });
 
 export type LoginRequest = {
@@ -24,6 +25,12 @@ export type AuthResponse = {
    userId: string;
 };
 
+export type User = {
+   id: number;
+   fullName: string;
+   email: string;
+};
+
 export async function loginRequest(
    request: LoginRequest,
 ): Promise<AuthResponse> {
@@ -36,4 +43,18 @@ export async function registerRequest(
 ): Promise<number> {
    const response = await api.post("/Auth/register", request);
    return response.status;
+}
+
+export async function refreshTokenRequest(): Promise<AuthResponse> {
+   const response = await api.post("/Auth/refresh-token", {});
+   return response.data;
+}
+
+export async function getUser(): Promise<User> {
+   const response = await api.get<User>("/Auth/me");
+   return response.data;
+}
+
+export async function logoutRequest(): Promise<void> {
+   await api.post("/Auth/logout", {});
 }

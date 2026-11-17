@@ -5,9 +5,8 @@ import {
    useState,
    type ReactNode,
 } from "react";
-import { loginRequest } from "../services/AuthService";
-import UserService from "../services/UserService";
-import type { User } from "../services/UserService";
+import { loginRequest, getUser, logoutRequest } from "../services/AuthService";
+import type { User } from "../services/AuthService";
 
 type LoginRequest = {
    email: string;
@@ -18,8 +17,10 @@ type AuthContextType = {
    user: User | null;
    isAuthenticated: boolean;
    isLoading: boolean;
+   error: string | null;
    login: (credentials: LoginRequest) => Promise<void>;
    logout: () => Promise<void>;
+   clearError: () => void;
 };
 
 type AuthProviderProps = {
@@ -31,47 +32,65 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: AuthProviderProps) {
    const [user, setUser] = useState<User | null>(null);
    const [isLoading, setIsLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
 
-   // Check whether the user has a valid authentication cookie.
-   async function checkAuth() {
+   const checkAuth = async () => {
       try {
-         const response = await new UserService().getUser();
+         setError(null);
+         const response = await getUser();
          setUser(response);
-      } catch {
+      } catch (err: any) {
          setUser(null);
+         const errorMessage =
+            err?.response?.data?.message || "Failed to verify authentication";
+         console.error("Auth check failed:", errorMessage);
       } finally {
          setIsLoading(false);
       }
-   }
+   };
 
-   // Check authentication when the application starts.
    useEffect(() => {
       checkAuth();
    }, []);
 
-   // Login using the API. The API sets the HTTP-only cookie.
-   async function login(credentials: LoginRequest) {
-      await loginRequest(credentials);
-
-      // Retrieve the authenticated user's information.
-      await checkAuth();
-   }
-
-   // Logout and clear the authentication state.
-   async function logout() {
+   const login = async (credentials: LoginRequest) => {
       try {
-         await new UserService().logoutUser();
+         setError(null);
+         setIsLoading(true);
+         await loginRequest(credentials);
+         await checkAuth();
+      } catch (err: any) {
+         const errorMessage = "Login failed. Please try again.";
+         setError(errorMessage);
+         setUser(null);
+         throw err;
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
+   const logout = async () => {
+      try {
+         setError(null);
+         await logoutRequest();
+      } catch (err: any) {
+         const errorMessage = err?.response?.data?.message || "Logout failed";
+         console.error("Logout error:", errorMessage);
       } finally {
          setUser(null);
       }
-   }
+   };
+
+   const clearError = () => setError(null);
 
    const value: AuthContextType = {
       user,
       isAuthenticated: !!user,
       isLoading,
+      error,
       login,
       logout,
+      clearError,
    };
 
    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

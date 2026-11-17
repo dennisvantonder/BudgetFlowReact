@@ -21,12 +21,13 @@ function App() {
          </Route>
 
          {/* Protected routes */}
-         <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/categories" element={<CategoriesPage />} />
+         <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+               <Route path="/dashboard" element={<DashboardPage />} />
+               <Route path="/transactions" element={<TransactionsPage />} />
+               <Route path="/categories" element={<CategoriesPage />} />
+            </Route>
          </Route>
-
          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
          <Route path="*" element={<h1>404 - Page not found</h1>} />

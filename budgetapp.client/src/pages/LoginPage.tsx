@@ -1,47 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { EmailInput, PasswordInput } from "../components/Inputs";
 import { PrimaryButton } from "../components/Buttons";
-import { loginRequest } from "../services/AuthService";
+import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router";
 
 export default function LoginPage() {
    const [email, setEmail] = useState("");
    const [password, setPassword] = useState("");
-   const [error, setError] = useState("");
-   const [loading, setLoading] = useState(false);
+   const { error, clearError, isAuthenticated, login, isLoading } = useAuth();
    const navigate = useNavigate();
+
+   useEffect(() => {
+      if (isAuthenticated) {
+         navigate("/dashboard", { replace: true });
+      }
+   }, [isAuthenticated, navigate]);
 
    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
       e.preventDefault();
+      clearError();
 
-      setError("");
-      setLoading(true);
       try {
-         const response = await loginRequest({ email, password });
-
-         // Optional: Use { replace: true } if you want to swap the current entry
-         // in the history stack instead of pushing a new one (prevents going back)
-         console.log("Login successful:", response);
-
-         localStorage.setItem("email", email);
-         localStorage.setItem("userId", response.userId);
-         navigate("/dashboard", { replace: true });
-      } catch (err: any) {
-         if (err.response) {
-            const data = err.response.data;
-            setError(
-               typeof data === "string"
-                  ? data
-                  : (data?.message ?? "Login Failed, Check your credentials."),
-            );
-         } else {
-            setError(
-               "Could not connect to the server. Please try again later.",
-            );
-         }
-      } finally {
-         setLoading(false);
+         await login({ email, password });
+      } catch (err) {
+         console.error("Login error:", err);
       }
    }
 
@@ -59,13 +42,15 @@ export default function LoginPage() {
             <EmailInput
                value={email}
                onChange={(e) => setEmail(e.target.value)}
+               disabled={isLoading}
             />
             <PasswordInput
                value={password}
                onChange={(e) => setPassword(e.target.value)}
+               disabled={isLoading}
             />
-            <PrimaryButton type="submit">
-               {loading ? "Logging In..." : "Log In"}
+            <PrimaryButton type="submit" disabled={isLoading}>
+               {isLoading ? "Logging In..." : "Log In"}
             </PrimaryButton>
             <div className="auth-switch">
                Don't have an account? <a href="/register">Sign Up</a>

@@ -3,10 +3,15 @@
 // Email input component
 type EmailInputProps = {
    value: string;
+   disabled?: boolean;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function EmailInput({ value, onChange }: EmailInputProps) {
+export function EmailInput({
+   value,
+   onChange,
+   disabled = false,
+}: EmailInputProps) {
    return (
       <div className="form-group">
          <label>Email</label>
@@ -15,6 +20,7 @@ export function EmailInput({ value, onChange }: EmailInputProps) {
             placeholder="you@example.com"
             value={value}
             onChange={onChange}
+            disabled={disabled}
          />
       </div>
    );
@@ -23,10 +29,15 @@ export function EmailInput({ value, onChange }: EmailInputProps) {
 // Password input component
 type PasswordInputProps = {
    value: string;
+   disabled?: boolean;
    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function PasswordInput({ value, onChange }: PasswordInputProps) {
+export function PasswordInput({
+   value,
+   onChange,
+   disabled = false,
+}: PasswordInputProps) {
    return (
       <div className="form-group">
          <label>Password</label>
@@ -35,6 +46,7 @@ export function PasswordInput({ value, onChange }: PasswordInputProps) {
             placeholder="••••••••"
             value={value}
             onChange={onChange}
+            disabled={disabled}
          />
       </div>
    );

@@ -3,10 +3,10 @@ import { useAuth } from "../auth/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function AppLayout() {
-   const { logout } = useAuth();
+   const { logout, user } = useAuth();
    const navigate = useNavigate();
-   const fullName = localStorage.getItem("fullName");
-   const email = localStorage.getItem("email");
+   const fullName = user?.fullName;
+   const email = user?.email;
 
    function handleLogout() {
       logout();
