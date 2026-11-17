@@ -15,7 +15,6 @@ export type AddTransaction = {
    date: string;
    categoryId: number;
    type: string;
-   userId: string;
 };
 
 export default class TransactionService extends BaseApiService {
@@ -23,8 +22,11 @@ export default class TransactionService extends BaseApiService {
       return this.get<Transaction[]>("/Transactions/get");
    }
 
-   async addTransaction(transaction: AddTransaction): Promise<any> {
-      return this.post<any, AddTransaction>("/Transactions/add", transaction);
+   async addTransaction(transaction: AddTransaction): Promise<Transaction> {
+      return this.post<Transaction, AddTransaction>(
+         "/Transactions/add",
+         transaction,
+      );
    }
 
    async deleteTransaction(transactionId: number): Promise<void> {

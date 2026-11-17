@@ -81,14 +81,15 @@ export default function AddTransactionModal({
                <PrimaryButton
                   type="button"
                   onClick={() => {
-                     onAdd({
+                     const newTransaction = {
                         description: description,
                         amount: amount,
                         type: type,
                         categoryId: categoryId,
                         date: date,
                         userId: userId,
-                     });
+                     };
+                     onAdd(newTransaction);
                      onClose();
                   }}
                >

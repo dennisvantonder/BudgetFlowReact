@@ -3,98 +3,88 @@ import { PrimaryButton } from "../components/Buttons";
 import { ComboBoxInput, TextInput } from "../components/Inputs";
 import EmptyState from "../components/EmptyState";
 import TransactionTable from "../components/TransactionTable";
-import { useState } from "react";
-import type { Transaction } from "../services/TransactionService";
+import { useState, useEffect } from "react";
+
+import CategoryService from "../services/CategoryService";
+import TransactionService from "../services/TransactionService";
+
 import AddTransactionModal from "../components/AddTransactionModal";
+
+import type { Category } from "../services/CategoryService";
+import type { Transaction } from "../services/TransactionService";
+import type { AddTransaction } from "../services/TransactionService";
 
 export default function TransactionPage() {
    const [searchTerm, setSearchTerm] = useState("");
    const [selectedCategory, setSelectedCategory] = useState("0");
    const [selectedType, setSelectedType] = useState("all");
    const [showModal, setShowModal] = useState(false);
-
-   const categories = [
-      { id: 0, name: "All Categories", icon: "fa-list" },
-      { id: 1, name: "Food", icon: "fa-utensils" },
-      { id: 2, name: "Transport", icon: "fa-car" },
-      { id: 3, name: "Shopping", icon: "fa-shopping-bag" },
-      { id: 4, name: "Entertainment", icon: "fa-film" },
-      { id: 5, name: "Bills", icon: "fa-file-invoice" },
-      { id: 6, name: "Health", icon: "fa-heartbeat" },
-      { id: 7, name: "Education", icon: "fa-graduation-cap" },
-      { id: 8, name: "Salary", icon: "fa-money-bill-wave" },
-      { id: 9, name: "Freelance", icon: "fa-laptop-code" },
-      { id: 10, name: "Other", icon: "fa-ellipsis-h" },
-   ];
-
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+   const [categories, setCategories] = useState<Category[]>([]);
    const [defaultTransactions, setDefaultTransactions] = useState<
       Transaction[]
-   >([
-      {
-         id: 1,
-         description: "Grocery shopping",
-         amount: 85.5,
-         type: "expense",
-         categoryName: "Food",
-         date: "2026-08-10",
-      },
-      {
-         id: 2,
-         description: "Monthly salary",
-         amount: 3200.0,
-         type: "income",
-         categoryName: "Salary",
-         date: "2026-08-01",
-      },
-      {
-         id: 3,
-         description: "Uber ride",
-         amount: 24.0,
-         type: "expense",
-         categoryName: "Transport",
-         date: "2026-08-08",
-      },
-      {
-         id: 4,
-         description: "Netflix subscription",
-         amount: 15.99,
-         type: "expense",
-         categoryName: "Entertainment",
-         date: "2026-08-05",
-      },
-      {
-         id: 5,
-         description: "Freelance project",
-         amount: 450.0,
-         type: "income",
-         categoryName: "Freelance",
-         date: "2026-08-03",
-      },
-      {
-         id: 6,
-         description: "Electricity bill",
-         amount: 120.0,
-         type: "expense",
-         categoryName: "Bills",
-         date: "2026-07-28",
-      },
-      {
-         id: 7,
-         description: "New headphones",
-         amount: 89.99,
-         type: "expense",
-         categoryName: "Shopping",
-         date: "2026-07-25",
-      },
-      {
-         id: 8,
-         description: "Doctor visit",
-         amount: 60.0,
-         type: "expense",
-         categoryName: "Health",
-         date: "2026-07-20",
-      },
-   ]);
+   >([]);
+
+   useEffect(() => {
+      // first fetch categories and transactions when the component mounts
+      const fetchCategories = async () => {
+         setLoading(true);
+         setError(null);
+         try {
+            const categoryService = new CategoryService();
+            const categoryResponse = await categoryService.getCategories();
+            categoryResponse.unshift({ id: 0, name: "All", icon: "" });
+            setCategories(categoryResponse);
+         } catch (err) {
+            console.error(err);
+            setError("Failed to fetch Categories");
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      fetchCategories();
+
+      // fetch transactions
+      const fetchTransactions = async () => {
+         setLoading(true);
+         setError(null);
+         try {
+            const transactionService = new TransactionService();
+            const transactionResponse =
+               await transactionService.getTransactions();
+            setDefaultTransactions(transactionResponse);
+         } catch (err) {
+            console.error(err);
+            setError("Failed to fetch Transactions");
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      fetchTransactions();
+   }, []);
+
+   const handleAddTransaction = async (transaction: AddTransaction) => {
+      try {
+         setLoading(true);
+
+         // set transaction
+         const transactionService = new TransactionService();
+         const addedTransaction =
+            await transactionService.addTransaction(transaction);
+         setDefaultTransactions((currentTransactions) => [
+            ...currentTransactions,
+            addedTransaction,
+         ]);
+         setShowModal(false);
+      } catch (err) {
+         console.error(err);
+      } finally {
+         setLoading(false);
+      }
+   };
 
    const expenseTypes = [
       { value: "all", label: "All Types" },
@@ -187,23 +177,7 @@ export default function TransactionPage() {
                   label: category.name,
                }))}
                onClose={() => setShowModal(false)}
-               onAdd={(transaction) => {
-                  setDefaultTransactions((transactions) => {
-                     const newTransaction = {
-                        id: 0,
-                        description: transaction.description,
-                        amount: transaction.amount,
-                        type: transaction.type,
-                        categoryName:
-                           categories.find(
-                              (c) => c.id === transaction.categoryId,
-                           )?.name || "",
-                        date: transaction.date,
-                     };
-                     return [...transactions, newTransaction];
-                  });
-                  console.log(transaction);
-               }}
+               onAdd={handleAddTransaction}
             />
          )}
       </div>

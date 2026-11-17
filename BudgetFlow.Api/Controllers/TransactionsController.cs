@@ -38,18 +38,38 @@ namespace BudgetFlow.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
+            var category = await context.Categories.FindAsync(transaction.CategoryId);
+            if (category == null)
+            {
+                return NotFound("Category not found.");
+            }
+
             var newTransaction = new Transaction
             {
                 Description = transaction.Description,
                 Amount = transaction.Amount,
                 Date = transaction.Date,
-                CategoryId = transaction.CategoryId,
+                Category = category,
+                CategoryId = category.Id,
                 Type = transaction.Type,
-                UserId = transaction.UserId
+                UserId = userId
             };
             context.Transactions.Add(newTransaction);
             await context.SaveChangesAsync();
-            return Ok();
+
+            return Ok(new TransactionDto
+            {
+                Amount = newTransaction.Amount,
+                CategoryName = newTransaction.Category.Name,
+                Date = newTransaction.Date,
+                Description = newTransaction.Description,
+                Id = newTransaction.Id,
+                Type = newTransaction.Type
+            });
         }
 
         [HttpDelete("delete/{id}")]

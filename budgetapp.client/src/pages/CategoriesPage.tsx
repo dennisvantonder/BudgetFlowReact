@@ -26,7 +26,6 @@ export default function CategoriesPage() {
          try {
             const categoryService = new CategoryService();
             const data = await categoryService.getCategories();
-            console.log(data);
             setCategories(data);
          } catch (err) {
             console.error(err);
