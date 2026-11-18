@@ -1,3 +1,4 @@
+using BudgetFlow.Api;
 using BudgetFlow.Api.Data;
 using BudgetFlow.Api.Models;
 using BudgetFlow.Api.Services;
@@ -198,6 +199,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseRateLimiter();
 app.UseHttpsRedirection();
 
