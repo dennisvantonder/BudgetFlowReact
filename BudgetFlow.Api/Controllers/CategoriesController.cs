@@ -68,25 +68,37 @@ namespace BudgetFlow.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var existingCategory = await context.Categories.FindAsync(id);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
+            // return not found if the category does not exist or does not belong to the user
+            var existingCategory = await context.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
             if (existingCategory == null)
             {
                 return NotFound();
             }
+
             existingCategory.Name = category.Name;
             existingCategory.Icon = category.Icon;
             await context.SaveChangesAsync();
+
             return Ok();
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await context.Categories.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+            
+            // check if the category exists and belongs to the user
+            var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
             if (category == null)
             {
                 return NotFound();
             }
+
             context.Categories.Remove(category);
             await context.SaveChangesAsync();
             return NoContent();

@@ -77,7 +77,7 @@ namespace BudgetFlow.Api.Controllers
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.None,
+                    SameSite = SameSiteMode.None, // Change to LAX when both backend and frontend are on the same domain/origin
                     Expires = accessTokenExpires,
                     Path = "/"
                 }

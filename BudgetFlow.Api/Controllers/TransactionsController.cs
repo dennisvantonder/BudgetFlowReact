@@ -42,7 +42,9 @@ namespace BudgetFlow.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
 
-            var category = await context.Categories.FindAsync(transaction.CategoryId);
+            // check for the category existence and ownership
+            // if category does not exist or does not belong to the user, return NotFound
+            var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == transaction.CategoryId && c.UserId == userId);
             if (category == null)
             {
                 return NotFound("Category not found.");
@@ -75,11 +77,16 @@ namespace BudgetFlow.Api.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {
-            var transaction = await context.Transactions.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
+
+            // check if the transaction exists and belongs to the user
+            var transaction = await context.Transactions.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
             if (transaction == null)
             {
                 return NotFound();
             }
+
             context.Transactions.Remove(transaction);
             await context.SaveChangesAsync();
             return NoContent();

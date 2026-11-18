@@ -7,12 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetFlow.Api.Controllers
 {
+    /// <summary>
+    /// This controller is for debug purposes only and should be deleted for a production app
+    /// </summary>
+    /// <param name="userManager"></param>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
     public class UsersController(UserManager<AppUser> userManager) : ControllerBase
     {
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await userManager.Users.Select(u => new UserDto
@@ -22,20 +27,6 @@ namespace BudgetFlow.Api.Controllers
                 Email = u.Email ?? ""
             }).ToListAsync();
             return Ok(users);
-        }
-
-        [HttpGet("get/{id}")]
-        public async Task<IActionResult> GetUserById(string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
-            if (user == null) return NotFound("User not found!");
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email ?? ""
-            };
-            return Ok(userDto);
         }
 
         [HttpDelete("delete/{id}")]
