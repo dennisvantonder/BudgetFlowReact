@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
+import { useState, useEffect } from "react";
 
 import ProtectedRoute from "./auth/ProtectedRoute";
 
@@ -10,8 +11,29 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import { antiForgeryService } from "./services/AntiForgeryService";
 
 function App() {
+   const [initialized, setInitialized] = useState(false);
+
+   useEffect(() => {
+      const initialize = async () => {
+         try {
+            await antiForgeryService.getToken();
+         } catch (error) {
+            console.error("Failed to initialize anti-forgery token:", error);
+         } finally {
+            setInitialized(true);
+         }
+      };
+
+      initialize();
+   }, []);
+
+   if (!initialized) {
+      return <div>Loading...</div>;
+   }
+
    return (
       <Routes>
          {/* Public routes */}

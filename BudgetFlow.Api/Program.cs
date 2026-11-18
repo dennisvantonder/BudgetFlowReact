@@ -4,6 +4,7 @@ using BudgetFlow.Api.Models;
 using BudgetFlow.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -74,11 +75,24 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
 });
 
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-XSRF-TOKEN";
+    options.Cookie.Name = "XSRF-COOKIE";
+    options.Cookie.HttpOnly = true; // do not allow JavaScript access to the cookie
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ensure the cookie is only sent over HTTPS
+    options.Cookie.SameSite = SameSiteMode.None; // change to LAX
+});
+
 // register services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAutoMapper(cfg => { }, typeof(AutoMappingProfile));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -198,6 +212,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseHsts();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

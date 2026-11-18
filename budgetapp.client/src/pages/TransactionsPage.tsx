@@ -86,6 +86,21 @@ export default function TransactionPage() {
       }
    };
 
+   const handleDeleteTransaction = async (transactionId: number) => {
+      try {
+         setLoading(true);
+         const transactionService = new TransactionService();
+         await transactionService.deleteTransaction(transactionId);
+         setDefaultTransactions((currentTransactions) =>
+            currentTransactions.filter((t) => t.id !== transactionId),
+         );
+      } catch (err) {
+         console.error(err);
+      } finally {
+         setLoading(false);
+      }
+   };
+
    const expenseTypes = [
       { value: "all", label: "All Types" },
       { value: "expense", label: "Expense" },
@@ -162,11 +177,7 @@ export default function TransactionPage() {
             <TransactionTable
                transactions={filteredTransactions}
                categories={categories}
-               onDelete={(transactionId) => {
-                  setDefaultTransactions((transactions) =>
-                     transactions.filter((t) => t.id !== transactionId),
-                  );
-               }}
+               onDelete={handleDeleteTransaction}
             />
          )}
 

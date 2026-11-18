@@ -4,6 +4,7 @@ import axios, {
    type AxiosResponse,
    type InternalAxiosRequestConfig,
 } from "axios";
+import { antiForgeryService } from "./AntiForgeryService";
 
 export default class BaseApiService {
    protected api: AxiosInstance;
@@ -22,12 +23,30 @@ export default class BaseApiService {
    }
 
    private setupInterceptors() {
+      // Setup request interceptor to include anti-forgery token
+      this.api.interceptors.request.use((config) => {
+         const method = config.method?.toLowerCase();
+         const unsafeMethods = ["post", "put", "patch", "delete"];
+
+         if (method && unsafeMethods.includes(method)) {
+            const token = antiForgeryService.getRequestToken();
+
+            if (token) {
+               config.headers["X-XSRF-TOKEN"] = token;
+            }
+         }
+
+         return config;
+      });
+
+      // Setup response interceptor to handle 401 and 403 errors, and refresh token logic
       this.api.interceptors.response.use(
          (response) => response,
          async (error) => {
-            const originalRequest = error.config as InternalAxiosRequestConfig & {
-               _retried?: boolean;
-            };
+            const originalRequest =
+               error.config as InternalAxiosRequestConfig & {
+                  _retried?: boolean;
+               };
 
             if (!originalRequest) {
                return Promise.reject(error);
