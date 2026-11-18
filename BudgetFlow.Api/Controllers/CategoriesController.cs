@@ -1,4 +1,5 @@
-﻿using BudgetFlow.Api.Data;
+﻿using AutoMapper;
+using BudgetFlow.Api.Data;
 using BudgetFlow.Api.Dtos;
 using BudgetFlow.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +12,7 @@ namespace BudgetFlow.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CategoriesController(AppDbContext context) : ControllerBase
+    public class CategoriesController(AppDbContext context, IMapper mapper) : ControllerBase
     {
         [HttpGet("get")]
         public async Task<IActionResult> GetCategories()
@@ -19,12 +20,8 @@ namespace BudgetFlow.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
 
-            var categories = await context.Categories.Where(c => c.UserId == userId).Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Icon = c.Icon
-            }).ToListAsync();
+            var categories = await context.Categories.Where(c => c.UserId == userId)
+                .Select(c => mapper.Map<CategoryDto>(c)).ToListAsync();
             return Ok(categories);
         }
 
@@ -39,12 +36,8 @@ namespace BudgetFlow.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
 
-            var newCategory = new Category
-            {
-                Name = category.Name,
-                Icon = category.Icon,
-                UserId = userId
-            };
+            var newCategory = mapper.Map<Category>(category);
+            newCategory.UserId = userId;
 
             if (await context.Categories.AnyAsync(c => c.Name == newCategory.Name && c.UserId == newCategory.UserId))
             {
@@ -53,12 +46,8 @@ namespace BudgetFlow.Api.Controllers
 
             context.Categories.Add(newCategory);
             await context.SaveChangesAsync();
-            return Ok(new CategoryDto
-            {
-                Id = newCategory.Id,
-                Name = newCategory.Name,
-                Icon = newCategory.Icon
-            });
+
+            return Ok(mapper.Map<CategoryDto>(newCategory));
         }
 
         [HttpPut("update/{id}")]

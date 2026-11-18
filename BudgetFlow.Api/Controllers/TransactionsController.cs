@@ -1,4 +1,5 @@
-﻿using BudgetFlow.Api.Data;
+﻿using AutoMapper;
+using BudgetFlow.Api.Data;
 using BudgetFlow.Api.Dtos;
 using BudgetFlow.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +12,7 @@ namespace BudgetFlow.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class TransactionsController(AppDbContext context) : ControllerBase
+    public class TransactionsController(AppDbContext context, IMapper mapper) : ControllerBase
     {
         [HttpGet("get")]
         public async Task<IActionResult> GetTransactions()
@@ -19,15 +20,9 @@ namespace BudgetFlow.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized("User not authorized!");
 
-            var transactions = await context.Transactions.Where(t => t.UserId == userId).Select(t => new TransactionDto
-            {
-                Id = t.Id,
-                Description = t.Description,
-                Type = t.Type,
-                CategoryName = t.Category.Name,
-                Amount = t.Amount,
-                Date = t.Date
-            }).ToListAsync();
+            var transactions = await context.Transactions.Where(t => t.UserId == userId)
+                .Select(t => mapper.Map<TransactionDto>(t)).ToListAsync();
+
             return Ok(transactions);
         }
 
@@ -50,28 +45,14 @@ namespace BudgetFlow.Api.Controllers
                 return NotFound("Category not found.");
             }
 
-            var newTransaction = new Transaction
-            {
-                Description = transaction.Description,
-                Amount = transaction.Amount,
-                Date = transaction.Date,
-                Category = category,
-                CategoryId = category.Id,
-                Type = transaction.Type,
-                UserId = userId
-            };
+            var newTransaction = mapper.Map<Transaction>(transaction);
+            newTransaction.UserId = userId;
+            newTransaction.Category = category;
+
             context.Transactions.Add(newTransaction);
             await context.SaveChangesAsync();
 
-            return Ok(new TransactionDto
-            {
-                Amount = newTransaction.Amount,
-                CategoryName = newTransaction.Category.Name,
-                Date = newTransaction.Date,
-                Description = newTransaction.Description,
-                Id = newTransaction.Id,
-                Type = newTransaction.Type
-            });
+            return Ok(mapper.Map<TransactionDto>(newTransaction));
         }
 
         [HttpDelete("delete/{id}")]

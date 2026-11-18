@@ -76,6 +76,7 @@ builder.Services.AddAuthorization(options =>
 
 // register services
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddAutoMapper(cfg => { }, typeof(AutoMappingProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
